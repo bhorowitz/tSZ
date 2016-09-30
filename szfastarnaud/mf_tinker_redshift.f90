@@ -108,7 +108,7 @@ DOUBLE PRECISION FUNCTION mf(lnnu,z)
   double precision :: Ap,a,b,alpha
   Ap=Ap0*(1d0+z)**(-0.14d0)
   a=a0*(1d0+z)**(-0.06d0)
-  alpha=10d0**(-(0.75d0/dlog10(200d0/75d0))**1.2d0)
+  alpha=dexp(-(0.75d0/dlog(200d0/75d0))**1.2d0)
   b=b0*(1d0+z)**(-alpha) 
   nu= exp(lnnu)
   sigma= 1.6865d0/dsqrt(nu)

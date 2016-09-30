@@ -39,7 +39,7 @@ contains
     ALLOCATE(xa(ndata),ya(ndata),y2a(ndata))
     ALLOCATE(aklin(ndata),pk_lin(ndata))
     open(1,file=filename,status='old',form='formatted')
-    print*,'read in '//trim(filename)
+    !print*,'read in '//trim(filename)
     do i=1,ndata
        read(1,*)aklin(i),pk_lin(i) ! k/h & h^3 P(k) in CAMB format!
     enddo
@@ -59,13 +59,15 @@ DOUBLE PRECISION FUNCTION Linear_Pk(ak)
   Use LinearPk
   IMPLICIT none
   DOUBLE PRECISION :: a,b,h,x,y,ak
-  x  = dlog(ak)
+  x  = log(ak)
   CALL hunt(xa,ndata,x,jlo)
   h=xa(jlo+1)-xa(jlo)
   a=(xa(jlo+1)-x)/h
   b=(x-xa(jlo))/h
   y=a*ya(jlo)+b*ya(jlo+1)+((a**3-a)*y2a(jlo)+(b**3-b)*y2a(jlo+1))*(h**2)/6.
-  Linear_Pk = dexp(y)
+  Linear_Pk = exp(y)
+  !print*,y
+
   return
 END FUNCTION Linear_Pk
 DOUBLE PRECISION FUNCTION dlnPkdlnk(ak)
@@ -81,3 +83,27 @@ DOUBLE PRECISION FUNCTION dlnPkdlnk(ak)
   dlnPkdlnk = y
   return
 END FUNCTION DlnPkdlnk
+
+DOUBLE PRECISION FUNCTION Linear_Pk2(ak)
+  Use LinearPk
+  IMPLICIT none
+  REAL :: a,b,h,x,y,ak
+  x  = log(ak)
+  CALL hunt(xa,ndata,x,jlo)
+  h=xa(jlo+1)-xa(jlo)
+  a=(xa(jlo+1)-x)/h
+  b=(x-xa(jlo))/h
+  y=a*ya(jlo)+b*ya(jlo+1)+((a**3-a)*y2a(jlo)+(b**3-b)*y2a(jlo+1))*(h**2)/6.
+  Linear_Pk2 = exp(y)
+  return
+END FUNCTION Linear_Pk2
+
+
+REAL FUNCTION test(ak)
+  Use LinearPk
+  IMPLICIT none
+  DOUBLE PRECISION :: a,b,h,x,y,ak
+  test = 100.0d0
+  print*,test
+  return
+END FUNCTION test

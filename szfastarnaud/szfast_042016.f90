@@ -13,17 +13,12 @@ PROGRAM szfast
 ! December 14, 2010: E.Komatsu
   IMPLICIT none
   double precision :: z1=1d-5,z2=5d0 ! redshift limits
-  character(len=128) :: filename,file2
+  character(len=128) :: filename
   character(len=32) :: arg
   integer :: npk,i,j,n=1001 ! 201 is good enough for l>100
   double precision :: cl,dcldlnx,lnx,dlnx,lnx1,lnx2
   double precision :: cl2, dcl2dlnx
-  !double precision, dimension(15) :: ell_array
-  !ell_array = (/ 3000.0d0 ,  1247.0d0 ,   959.0d0 ,   738.0d0 ,   567.5d0,   436.5d0,   335.50d0, 257.50d0,   198.0d0 ,   152.50d0,   117.0d0 ,    89.50d0,    68.50d0,    52.50d0, 40.0d0 /)
   external dcldlnx
-
-  REAL, DIMENSION(15) :: ell_list
-  ell_list = (/ 3000.0, 1247.0, 959.0, 738.0, 567.5, 436.5, 335.50, 257.50, 198.0, 152.50, 117.0, 89.50, 68.50, 52.50, 40.0 /)
 ! Specify three cosmological parameters
 ! The data type has been defined in MODULE cosmo.
   obh2=0.02289d0
@@ -33,10 +28,9 @@ PROGRAM szfast
   w=-1d0
   CALL getarg(1, arg)
   read (arg,*) mcrit 
+!mcrit=arg  !29.63d0
 ! read in and tabulate P(k)
-  CALL getarg(2, arg)
-  read (arg,*) filename
-  !filename='test_out'!’wmap5baosn_max_likelihood_matterpower_at_z=30.dat'
+  filename='evolved_linearpk.txt'!’wmap5baosn_max_likelihood_matterpower_at_z=30.dat'
   npk=705 ! # of lines in the file
   CALL open_linearpk(filename,npk)
 ! fit sigma^2(R) to Chebyshev polynomials
@@ -48,14 +42,12 @@ PROGRAM szfast
   CALL setup_da
 ! compute the SZ power spectrum, l(l+1)Cl/twopi [uK^2] 
 ! in the RJ limit, dT/T=-2y
-  CALL getarg(3, arg)
-  read (arg,*) file2
-  open(1,file=file2)
+  open(1,file='multipole_szpower.txt')
   lnx1=dlog(1d0+z1)
   lnx2=dlog(1d0+z2)
   dlnx=(lnx2-lnx1)/dble(n-1)
-  do j=1,15
-     ell=dble(ell_list(j))
+  do j=1,16
+     ell=10d0**(1d0+dble(j-1)*0.2)
      ! integrate by the trapezoidal rule
      cl=0d0
      cl=dcldlnx(lnx1)*(0.5d0*dlnx)
@@ -71,7 +63,7 @@ PROGRAM szfast
         cl2=cl2+dcl2dlnx(lnx,ell)*dlnx
      enddo
      print*,ell,cl*ell*(ell+1d0)/2d0/3.14159d0,cl2*ell*(ell+1d0)/2d0/3.14159d0
-     write(1,*)ell,cl,cl2
+     write(1,*)ell,cl*ell*(ell+1d0)/2d0/3.14159,cl2*ell*(ell+1d0)/2d0/3.14159
   enddo
   close(1)
 END PROGRAM szfast

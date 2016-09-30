@@ -1,3 +1,3 @@
 MODULE multipole
-  double precision ell
+  real ell, ellp
 END MODULE multipole
